@@ -1,0 +1,67 @@
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Download historical stock price data for Boeing (BA)
+ticker = "BA"
+data = yf.download(ticker, start="2015-01-01", end="2023-01-01")
+
+# Display the first few rows of the dataset
+print("First few rows of the data:")
+print(data.head())
+
+# Summary statistics
+print("\nSummary statistics:")
+print(data.describe())
+
+# Plotting Adjusted Close price
+plt.figure(figsize=(14, 7))
+plt.plot(data['Adj Close'], label='BA Adjusted Close Price')
+plt.title(f'{ticker} Adjusted Close Price')
+plt.xlabel('Date')
+plt.ylabel('Price (USD)')
+plt.legend()
+plt.show()
+
+# Moving averages (50-day and 200-day)
+data['50_MA'] = data['Adj Close'].rolling(window=50).mean()
+data['200_MA'] = data['Adj Close'].rolling(window=200).mean()
+
+plt.figure(figsize=(14, 7))
+plt.plot(data['Adj Close'], label='BA Adjusted Close Price')
+plt.plot(data['50_MA'], label='50-Day Moving Average', color='orange')
+plt.plot(data['200_MA'], label='200-Day Moving Average', color='green')
+plt.title(f'{ticker} Adjusted Close Price with Moving Averages')
+plt.xlabel('Date')
+plt.ylabel('Price (USD)')
+plt.legend()
+plt.show()
+
+# Daily returns
+data['Daily Return'] = data['Adj Close'].pct_change()
+
+# Plotting daily returns
+plt.figure(figsize=(14, 7))
+sns.histplot(data['Daily Return'].dropna(), bins=100, kde=True)
+plt.title(f'{ticker} Daily Returns Distribution')
+plt.xlabel('Daily Return')
+plt.ylabel('Frequency')
+plt.show()
+
+# Box plot for daily returns
+plt.figure(figsize=(10, 6))
+sns.boxplot(data['Daily Return'])
+plt.title(f'{ticker} Daily Returns Boxplot')
+plt.show()
+
+# Cumulative returns
+data['Cumulative Return'] = (1 + data['Daily Return']).cumprod()
+
+plt.figure(figsize=(14, 7))
+plt.plot(data['Cumulative Return'], label='BA Cumulative Return')
+plt.title(f'{ticker} Cumulative Returns')
+plt.xlabel('Date')
+plt.ylabel('Cumulative Return')
+plt.legend()
+plt.show()
